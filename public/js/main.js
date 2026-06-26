@@ -46,4 +46,19 @@
       } catch (e) {}
     });
   });
+
+  var viewsEl = document.querySelector('[data-views-blog]');
+  if (viewsEl) {
+    var blogId = viewsEl.getAttribute('data-views-blog');
+    var countEl = viewsEl.querySelector('[data-views-count]');
+    setInterval(async function () {
+      if (document.hidden) return;
+      try {
+        var res = await fetch('/blogs/' + blogId + '/views', { headers: { 'Accept': 'application/json' } });
+        if (!res.ok) return;
+        var data = await res.json();
+        if (countEl && typeof data.views === 'number') countEl.textContent = data.views;
+      } catch (e) {}
+    }, 10000);
+  }
 })();

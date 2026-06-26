@@ -21,6 +21,7 @@ router.get('/blogs/edit/:id', isAuth, blog.getEdit);
 router.put('/blogs/edit/:id', isAuth, upload.single('coverImage'), blog.postEdit);
 router.delete('/blogs/:id', isAuth, blog.deleteBlog);
 
+router.get('/blogs/:id/views', blog.getViews);
 router.post('/blogs/:id/like', isAuth, blog.toggleLike);
 router.post('/blogs/:id/bookmark', isAuth, blog.toggleBookmark);
 router.post('/blogs/:id/comment', isAuth, comment.addComment);

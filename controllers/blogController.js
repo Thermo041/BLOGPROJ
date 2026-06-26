@@ -176,6 +176,12 @@ exports.deleteBlog = async (req, res) => {
   res.redirect('/dashboard');
 };
 
+exports.getViews = async (req, res) => {
+  const blog = await Blog.findById(req.params.id).select('views');
+  if (!blog) return res.status(404).json({ error: 'Not found' });
+  res.json({ views: blog.views });
+};
+
 exports.toggleLike = async (req, res) => {
   const blog = await Blog.findById(req.params.id);
   if (!blog) return res.status(404).json({ error: 'Not found' });
