@@ -4,7 +4,7 @@ const Comment = require('../models/Comment');
 const Bookmark = require('../models/Bookmark');
 const User = require('../models/User');
 
-const CATEGORIES = ['Technology', 'Programming', 'AI', 'Web Development', 'DSA', 'Career'];
+const CATEGORIES = ['Technology', 'Programming', 'AI', 'Web Development', 'DSA', 'Career', 'Other'];
 exports.CATEGORIES = CATEGORIES;
 
 exports.home = async (req, res) => {
