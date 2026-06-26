@@ -67,14 +67,14 @@
       <% if (!comments.length) { %><p class="opacity-55 text-sm">No comments yet. Be the first.</p><% } %>
       <% comments.forEach(function(c){ %>
         <div class="flex gap-3">
-          <img src="<%= c.user.avatar %>" class="w-9 h-9 rounded-full object-cover shrink-0 bg-base-200" alt="" />
+          <img src="<%= c.user ? c.user.avatar : '' %>" class="w-9 h-9 rounded-full object-cover shrink-0 bg-base-200" alt="" />
           <div class="flex-1 bg-base-200/50 rounded-2xl rounded-tl-sm px-4 py-3">
             <div class="flex items-center justify-between gap-2">
-              <span class="font-semibold text-sm"><%= c.user.username %></span>
+              <span class="font-semibold text-sm"><%= c.user ? c.user.username : '[deleted user]' %></span>
               <span class="text-xs opacity-50"><%= new Date(c.createdAt).toLocaleDateString() %></span>
             </div>
             <p class="text-sm mt-1 opacity-90"><%= c.text %></p>
-            <% if (currentUser && (String(currentUser._id) === String(c.user._id) || currentUser.role === 'admin')) { %>
+            <% if (currentUser && (currentUser.role === 'admin' || (c.user && String(currentUser._id) === String(c.user._id)))) { %>
               <form action="/comments/<%= c._id %>?_method=DELETE" method="POST" class="mt-1">
                 <button class="text-xs link link-error opacity-70">Delete</button>
               </form>

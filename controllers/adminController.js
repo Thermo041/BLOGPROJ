@@ -1,6 +1,7 @@
 const User = require('../models/User');
 const Blog = require('../models/Blog');
 const Comment = require('../models/Comment');
+const Bookmark = require('../models/Bookmark');
 
 exports.dashboard = async (req, res) => {
   const [totalUsers, publishedBlogs, draftBlogs, totalComments, popular] = await Promise.all([
@@ -38,6 +39,7 @@ exports.blogs = async (req, res) => {
 
 exports.deleteBlog = async (req, res) => {
   await Comment.deleteMany({ blog: req.params.id });
+  await Bookmark.deleteMany({ blog: req.params.id });
   await Blog.findByIdAndDelete(req.params.id);
   req.flash('success', 'Blog deleted');
   res.redirect('/admin/blogs');
