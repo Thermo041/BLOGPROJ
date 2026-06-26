@@ -1,4 +1,8 @@
 (function () {
+  window.addEventListener('pageshow', function (event) {
+    if (event.persisted) window.location.reload();
+  });
+
   document.querySelectorAll('.flash-alert').forEach(function (el) {
     setTimeout(function () {
       el.classList.add('hide');
