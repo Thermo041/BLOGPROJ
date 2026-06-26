@@ -4,6 +4,7 @@ const blog = require('../controllers/blogController');
 const comment = require('../controllers/commentController');
 const profile = require('../controllers/profileController');
 const isAuth = require('../middlewares/isAuthenticated');
+const validateId = require('../middlewares/validateObjectId');
 const { upload } = require('../config/cloudinary');
 
 router.get('/', blog.home);
@@ -17,15 +18,15 @@ router.post('/settings/password', isAuth, profile.changePassword);
 
 router.get('/blogs/create', isAuth, blog.getCreate);
 router.post('/blogs/create', isAuth, upload.single('coverImage'), blog.postCreate);
-router.get('/blogs/edit/:id', isAuth, blog.getEdit);
-router.put('/blogs/edit/:id', isAuth, upload.single('coverImage'), blog.postEdit);
-router.delete('/blogs/:id', isAuth, blog.deleteBlog);
+router.get('/blogs/edit/:id', isAuth, validateId, blog.getEdit);
+router.put('/blogs/edit/:id', isAuth, validateId, upload.single('coverImage'), blog.postEdit);
+router.delete('/blogs/:id', isAuth, validateId, blog.deleteBlog);
 
-router.get('/blogs/:id/views', blog.getViews);
-router.post('/blogs/:id/like', isAuth, blog.toggleLike);
-router.post('/blogs/:id/bookmark', isAuth, blog.toggleBookmark);
-router.post('/blogs/:id/comment', isAuth, comment.addComment);
-router.delete('/comments/:id', isAuth, comment.deleteComment);
+router.get('/blogs/:id/views', validateId, blog.getViews);
+router.post('/blogs/:id/like', isAuth, validateId, blog.toggleLike);
+router.post('/blogs/:id/bookmark', isAuth, validateId, blog.toggleBookmark);
+router.post('/blogs/:id/comment', isAuth, validateId, comment.addComment);
+router.delete('/comments/:id', isAuth, validateId, comment.deleteComment);
 
 router.get('/profile/:id', blog.profile);
 router.get('/blogs/:slug', blog.showBlog);

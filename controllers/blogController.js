@@ -1,3 +1,4 @@
+const mongoose = require('mongoose');
 const Blog = require('../models/Blog');
 const Comment = require('../models/Comment');
 const Bookmark = require('../models/Bookmark');
@@ -225,6 +226,10 @@ exports.dashboard = async (req, res) => {
 };
 
 exports.profile = async (req, res) => {
+  if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+    req.flash('error', 'User not found');
+    return res.redirect('/');
+  }
   const user = await User.findById(req.params.id);
   if (!user) {
     req.flash('error', 'User not found');
