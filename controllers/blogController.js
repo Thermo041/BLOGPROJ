@@ -27,23 +27,26 @@ exports.listBlogs = async (req, res) => {
   if (search) filter.title = { $regex: search, $options: 'i' };
   if (category) filter.category = category;
 
-  let sortObj = { createdAt: -1 };
-  if (sort === 'liked') sortObj = { 'likesCount': -1, createdAt: -1 };
-  if (sort === 'viewed') sortObj = { views: -1 };
+  const total = await Blog.countDocuments(filter);
+  let blogs;
 
-  const query = Blog.find(filter).populate('author', 'username profilePic');
-  if (sort === 'liked') query.sort({ createdAt: -1 });
-  else query.sort(sortObj);
-
-  let blogs = await query.skip((page - 1) * limit).limit(limit);
   if (sort === 'liked') {
+    blogs = await Blog.aggregate([
+      { $match: filter },
+      { $addFields: { likesCount: { $size: { $ifNull: ['$likes', []] } } } },
+      { $sort: { likesCount: -1, createdAt: -1 } },
+      { $skip: (page - 1) * limit },
+      { $limit: limit }
+    ]);
+    await Blog.populate(blogs, { path: 'author', select: 'username profilePic' });
+  } else {
+    const sortObj = sort === 'viewed' ? { views: -1 } : { createdAt: -1 };
     blogs = await Blog.find(filter)
       .populate('author', 'username profilePic')
-      .lean();
-    blogs.sort((a, b) => (b.likes.length - a.likes.length) || (b.createdAt - a.createdAt));
-    blogs = blogs.slice((page - 1) * limit, page * limit);
+      .sort(sortObj)
+      .skip((page - 1) * limit)
+      .limit(limit);
   }
-  const total = await Blog.countDocuments(filter);
   res.render('blogs/list', {
     title: 'Explore blogs',
     blogs,
