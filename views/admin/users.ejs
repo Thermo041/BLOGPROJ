@@ -1,0 +1,23 @@
+<section class="max-w-5xl mx-auto px-5 py-12">
+  <h1 class="font-serif text-3xl font-semibold mb-6">Manage users</h1>
+  <div class="overflow-x-auto rounded-2xl border border-base-300/70">
+    <table class="table">
+      <thead><tr><th>User</th><th>Email</th><th>Role</th><th>Status</th><th></th></tr></thead>
+      <tbody>
+        <% users.forEach(function(u){ %>
+          <tr class="hover">
+            <td class="flex items-center gap-2"><img src="<%= u.profilePic %>" class="w-8 h-8 rounded-full object-cover" alt="" /><a href="/profile/<%= u._id %>" class="font-medium hover:text-primary"><%= u.username %></a></td>
+            <td class="text-sm opacity-70"><%= u.email %></td>
+            <td><span class="badge badge-sm <%= u.role === 'admin' ? 'badge-primary' : 'badge-ghost' %>"><%= u.role %></span></td>
+            <td><% if (u.isBanned) { %><span class="badge badge-error badge-sm">Banned</span><% } else { %><span class="badge badge-success badge-sm">Active</span><% } %></td>
+            <td class="text-right">
+              <% if (u.role !== 'admin') { %>
+                <form action="/admin/users/<%= u._id %>/ban" method="POST" class="inline"><button class="btn btn-xs <%= u.isBanned ? 'btn-success' : 'btn-error' %> btn-outline"><%= u.isBanned ? 'Unban' : 'Ban' %></button></form>
+              <% } %>
+            </td>
+          </tr>
+        <% }); %>
+      </tbody>
+    </table>
+  </div>
+</section>

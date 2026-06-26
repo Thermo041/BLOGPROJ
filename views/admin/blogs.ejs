@@ -1,0 +1,19 @@
+<section class="max-w-5xl mx-auto px-5 py-12">
+  <h1 class="font-serif text-3xl font-semibold mb-6">Manage blogs</h1>
+  <div class="overflow-x-auto rounded-2xl border border-base-300/70">
+    <table class="table">
+      <thead><tr><th>Title</th><th>Author</th><th>Status</th><th class="text-right">Views</th><th></th></tr></thead>
+      <tbody>
+        <% blogs.forEach(function(b){ %>
+          <tr class="hover">
+            <td class="font-medium"><a href="/blogs/<%= b.slug %>" class="hover:text-primary"><%= b.title %></a></td>
+            <td class="text-sm opacity-70"><%= b.author ? b.author.username : 'unknown' %></td>
+            <td><span class="badge badge-sm <%= b.status === 'published' ? 'badge-success' : 'badge-warning' %>"><%= b.status %></span></td>
+            <td class="text-right"><%= b.views %></td>
+            <td class="text-right"><form action="/admin/blogs/<%= b._id %>?_method=DELETE" method="POST" onsubmit="return confirm('Delete this blog?')"><button class="btn btn-xs btn-error btn-outline">Delete</button></form></td>
+          </tr>
+        <% }); %>
+      </tbody>
+    </table>
+  </div>
+</section>

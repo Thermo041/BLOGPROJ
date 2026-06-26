@@ -1,0 +1,43 @@
+<section class="max-w-2xl mx-auto px-5 py-12">
+  <h1 class="font-serif text-4xl font-semibold mb-8">Settings</h1>
+
+  <div class="card bg-base-100 border border-base-300/70 mb-8">
+    <form action="/settings/profile" method="POST" enctype="multipart/form-data" class="card-body gap-4">
+      <h2 class="font-serif text-xl font-semibold">Profile</h2>
+      <div class="flex items-center gap-4">
+        <img src="<%= currentUser.profilePic %>" class="w-16 h-16 rounded-full object-cover" alt="" />
+        <input type="file" name="profilePic" accept="image/*" class="file-input file-input-bordered file-input-sm flex-1" />
+      </div>
+      <div class="form-control">
+        <label class="label"><span class="label-text font-medium">Username</span></label>
+        <input type="text" name="username" value="<%= currentUser.username %>" class="input input-bordered" />
+      </div>
+      <div class="form-control">
+        <label class="label"><span class="label-text font-medium">Bio</span></label>
+        <textarea name="bio" rows="3" class="textarea textarea-bordered"><%= currentUser.bio %></textarea>
+      </div>
+      <div class="flex justify-end"><button class="btn btn-primary btn-sm">Save changes</button></div>
+    </form>
+  </div>
+
+  <div class="card bg-base-100 border border-base-300/70">
+    <form action="/settings/password" method="POST" class="card-body gap-4">
+      <h2 class="font-serif text-xl font-semibold">Change password</h2>
+      <div class="form-control">
+        <label class="label"><span class="label-text font-medium">Current password</span></label>
+        <input type="password" name="current" required class="input input-bordered" />
+      </div>
+      <div class="grid grid-cols-2 gap-3">
+        <div class="form-control">
+          <label class="label"><span class="label-text font-medium">New password</span></label>
+          <input type="password" name="password" required class="input input-bordered" />
+        </div>
+        <div class="form-control">
+          <label class="label"><span class="label-text font-medium">Confirm</span></label>
+          <input type="password" name="confirm" required class="input input-bordered" />
+        </div>
+      </div>
+      <div class="flex justify-end"><button class="btn btn-primary btn-sm">Update password</button></div>
+    </form>
+  </div>
+</section>

@@ -1,0 +1,28 @@
+<section class="max-w-6xl mx-auto px-5 py-12">
+  <h1 class="font-serif text-4xl font-semibold mb-1">Admin dashboard</h1>
+  <p class="opacity-60 mb-8">Platform overview and moderation tools.</p>
+
+  <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+    <div class="rounded-2xl border border-base-300/70 p-5"><p class="text-3xl font-serif font-semibold"><%= stats.totalUsers %></p><p class="text-sm opacity-60 mt-1">Users</p></div>
+    <div class="rounded-2xl border border-base-300/70 p-5"><p class="text-3xl font-serif font-semibold"><%= stats.publishedBlogs %></p><p class="text-sm opacity-60 mt-1">Published</p></div>
+    <div class="rounded-2xl border border-base-300/70 p-5"><p class="text-3xl font-serif font-semibold"><%= stats.draftBlogs %></p><p class="text-sm opacity-60 mt-1">Drafts</p></div>
+    <div class="rounded-2xl border border-base-300/70 p-5"><p class="text-3xl font-serif font-semibold"><%= stats.totalComments %></p><p class="text-sm opacity-60 mt-1">Comments</p></div>
+  </div>
+
+  <% if (stats.popular) { %>
+    <div class="rounded-2xl border border-base-300/70 p-6 mb-8 flex items-center gap-5">
+      <img src="<%= stats.popular.coverImage %>" class="w-24 h-24 rounded-xl object-cover" alt="" />
+      <div>
+        <p class="text-xs uppercase tracking-wide opacity-55 mb-1">Most popular blog</p>
+        <a href="/blogs/<%= stats.popular.slug %>" class="font-serif text-xl font-semibold hover:text-primary"><%= stats.popular.title %></a>
+        <p class="text-sm opacity-60 mt-1">by <%= stats.popular.author ? stats.popular.author.username : 'unknown' %> · <%= stats.popular.views %> views</p>
+      </div>
+    </div>
+  <% } %>
+
+  <div class="flex flex-wrap gap-3">
+    <a href="/admin/users" class="btn btn-outline">Manage users</a>
+    <a href="/admin/blogs" class="btn btn-outline">Manage blogs</a>
+    <a href="/admin/comments" class="btn btn-outline">Manage comments</a>
+  </div>
+</section>

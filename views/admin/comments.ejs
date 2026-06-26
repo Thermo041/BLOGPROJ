@@ -1,0 +1,16 @@
+<section class="max-w-5xl mx-auto px-5 py-12">
+  <h1 class="font-serif text-3xl font-semibold mb-6">Manage comments</h1>
+  <div class="space-y-3">
+    <% if (!comments.length) { %><p class="opacity-55">No comments.</p><% } %>
+    <% comments.forEach(function(c){ %>
+      <div class="flex items-start justify-between gap-4 rounded-xl border border-base-300/70 p-4">
+        <div class="min-w-0">
+          <p class="text-sm"><span class="font-semibold"><%= c.user ? c.user.username : 'unknown' %></span> <span class="opacity-50">on</span> <% if (c.blog) { %><a href="/blogs/<%= c.blog.slug %>" class="link link-primary"><%= c.blog.title %></a><% } else { %><span class="opacity-50">deleted blog</span><% } %></p>
+          <p class="opacity-80 mt-1"><%= c.text %></p>
+          <p class="text-xs opacity-50 mt-1"><%= new Date(c.createdAt).toLocaleString() %></p>
+        </div>
+        <form action="/admin/comments/<%= c._id %>?_method=DELETE" method="POST"><button class="btn btn-xs btn-error btn-outline">Delete</button></form>
+      </div>
+    <% }); %>
+  </div>
+</section>

@@ -1,0 +1,59 @@
+<section class="max-w-6xl mx-auto px-5 py-12">
+  <div class="flex items-center justify-between flex-wrap gap-4 mb-8">
+    <div>
+      <h1 class="font-serif text-4xl font-semibold">Dashboard</h1>
+      <p class="opacity-60 mt-1">Welcome back, <%= currentUser.username %>.</p>
+    </div>
+    <a href="/blogs/create" class="btn btn-primary rounded-full px-5">New story</a>
+  </div>
+
+  <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-10">
+    <div class="rounded-2xl border border-base-300/70 p-5"><p class="text-3xl font-serif font-semibold"><%= stats.count %></p><p class="text-sm opacity-60 mt-1">Total stories</p></div>
+    <div class="rounded-2xl border border-base-300/70 p-5"><p class="text-3xl font-serif font-semibold"><%= published.length %></p><p class="text-sm opacity-60 mt-1">Published</p></div>
+    <div class="rounded-2xl border border-base-300/70 p-5"><p class="text-3xl font-serif font-semibold"><%= stats.totalViews %></p><p class="text-sm opacity-60 mt-1">Total views</p></div>
+    <div class="rounded-2xl border border-base-300/70 p-5"><p class="text-3xl font-serif font-semibold"><%= stats.totalLikes %></p><p class="text-sm opacity-60 mt-1">Total likes</p></div>
+  </div>
+
+  <h2 class="font-serif text-2xl font-semibold mb-4">Published</h2>
+  <div class="overflow-x-auto rounded-2xl border border-base-300/70 mb-10">
+    <table class="table">
+      <thead><tr><th>Title</th><th>Category</th><th class="text-right">Views</th><th class="text-right">Likes</th><th></th></tr></thead>
+      <tbody>
+        <% if (!published.length) { %><tr><td colspan="5" class="text-center opacity-55 py-6">No published stories yet.</td></tr><% } %>
+        <% published.forEach(function(b){ %>
+          <tr class="hover">
+            <td class="font-medium"><a href="/blogs/<%= b.slug %>" class="hover:text-primary"><%= b.title %></a></td>
+            <td><span class="badge badge-ghost badge-sm"><%= b.category %></span></td>
+            <td class="text-right"><%= b.views %></td>
+            <td class="text-right"><%= b.likes.length %></td>
+            <td class="text-right whitespace-nowrap">
+              <a href="/blogs/edit/<%= b._id %>" class="btn btn-ghost btn-xs">Edit</a>
+              <form action="/blogs/<%= b._id %>?_method=DELETE" method="POST" class="inline" onsubmit="return confirm('Delete this blog?')"><button class="btn btn-ghost btn-xs text-error">Delete</button></form>
+            </td>
+          </tr>
+        <% }); %>
+      </tbody>
+    </table>
+  </div>
+
+  <h2 class="font-serif text-2xl font-semibold mb-4">Drafts</h2>
+  <div class="overflow-x-auto rounded-2xl border border-base-300/70">
+    <table class="table">
+      <thead><tr><th>Title</th><th>Category</th><th>Last edited</th><th></th></tr></thead>
+      <tbody>
+        <% if (!drafts.length) { %><tr><td colspan="4" class="text-center opacity-55 py-6">No drafts.</td></tr><% } %>
+        <% drafts.forEach(function(b){ %>
+          <tr class="hover">
+            <td class="font-medium"><%= b.title %></td>
+            <td><span class="badge badge-ghost badge-sm"><%= b.category %></span></td>
+            <td class="text-sm opacity-60"><%= new Date(b.updatedAt).toLocaleDateString() %></td>
+            <td class="text-right whitespace-nowrap">
+              <a href="/blogs/edit/<%= b._id %>" class="btn btn-ghost btn-xs">Continue</a>
+              <form action="/blogs/<%= b._id %>?_method=DELETE" method="POST" class="inline" onsubmit="return confirm('Delete this draft?')"><button class="btn btn-ghost btn-xs text-error">Delete</button></form>
+            </td>
+          </tr>
+        <% }); %>
+      </tbody>
+    </table>
+  </div>
+</section>
