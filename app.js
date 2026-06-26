@@ -11,7 +11,6 @@ const expressLayouts = require('express-ejs-layouts');
 const connectDB = require('./config/db');
 const { CATEGORIES } = require('./controllers/blogController');
 
-connectDB();
 require('./config/passport')(passport);
 
 const app = express();
@@ -64,4 +63,8 @@ app.use((err, req, res, next) => {
 });
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`BlogSphere running on port ${PORT}`));
+
+(async () => {
+  await connectDB();
+  app.listen(PORT, () => console.log(`BlogSphere running on port ${PORT}`));
+})();

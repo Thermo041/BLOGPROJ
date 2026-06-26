@@ -31,6 +31,8 @@
         if (res.status === 401 || res.redirected) { window.location = '/login'; return; }
         var data = await res.json();
         btn.classList.toggle('active', data.liked);
+        btn.classList.toggle('btn-primary', data.liked);
+        btn.classList.toggle('btn-outline', !data.liked);
         var c = btn.querySelector('[data-count]');
         if (c) c.textContent = data.count;
       } catch (e) {}
@@ -45,6 +47,8 @@
         if (res.status === 401 || res.redirected) { window.location = '/login'; return; }
         var data = await res.json();
         btn.classList.toggle('active', data.bookmarked);
+        btn.classList.toggle('btn-primary', data.bookmarked);
+        btn.classList.toggle('btn-outline', !data.bookmarked);
         var label = btn.querySelector('[data-label]');
         if (label) label.textContent = data.bookmarked ? 'Saved' : 'Save';
       } catch (e) {}

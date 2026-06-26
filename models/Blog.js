@@ -23,7 +23,7 @@ const blogSchema = new mongoose.Schema(
 );
 
 blogSchema.pre('save', function (next) {
-  if (this.isModified('title')) {
+  if (this.isModified('title') && !this.slug) {
     const base = slugify(this.title, { lower: true, strict: true });
     this.slug = `${base}-${Date.now().toString(36)}`;
   }

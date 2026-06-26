@@ -25,7 +25,13 @@ exports.addComment = async (req, res) => {
 
 exports.deleteComment = async (req, res) => {
   try {
-    const fallback = req.get('Referer') || '/blogs';
+    const referer = req.get('Referer') || '';
+    // Only allow same-origin relative paths to prevent open redirect
+    let fallback = '/blogs';
+    try {
+      const refUrl = new URL(referer, `${req.protocol}://${req.get('host')}`);
+      if (refUrl.host === req.get('host')) fallback = refUrl.pathname + refUrl.search + refUrl.hash;
+    } catch (e) { /* invalid URL, use default fallback */ }
     const comment = await Comment.findById(req.params.id).populate('blog', 'slug');
     if (!comment) {
       req.flash('error', 'Comment not found');

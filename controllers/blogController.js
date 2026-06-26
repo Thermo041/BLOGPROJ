@@ -7,92 +7,109 @@ const User = require('../models/User');
 const CATEGORIES = ['Technology', 'Programming', 'AI', 'Web Development', 'DSA', 'Career', 'Other'];
 exports.CATEGORIES = CATEGORIES;
 
-exports.home = async (req, res) => {
-  const featured = await Blog.find({ status: 'published' })
-    .sort({ views: -1 })
-    .limit(3)
-    .populate('author', 'username profilePic');
-  const latest = await Blog.find({ status: 'published' })
-    .sort({ createdAt: -1 })
-    .limit(6)
-    .populate('author', 'username profilePic');
-  res.render('blogs/home', { title: 'BlogSphere', featured, latest, categories: CATEGORIES });
+// Helper: escape special regex characters in user input
+function escapeRegex(str) {
+  return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+exports.home = async (req, res, next) => {
+  try {
+    const featured = await Blog.find({ status: 'published' })
+      .sort({ views: -1 })
+      .limit(3)
+      .populate('author', 'username profilePic');
+    const latest = await Blog.find({ status: 'published' })
+      .sort({ createdAt: -1 })
+      .limit(6)
+      .populate('author', 'username profilePic');
+    res.render('blogs/home', { title: 'BlogSphere', featured, latest, categories: CATEGORIES });
+  } catch (err) {
+    next(err);
+  }
 };
 
-exports.listBlogs = async (req, res) => {
-  const page = Math.max(1, parseInt(req.query.page) || 1);
-  const limit = 9;
-  const { search, category, sort } = req.query;
-  const filter = { status: 'published' };
-  if (search) filter.title = { $regex: search, $options: 'i' };
-  if (category) filter.category = category;
+exports.listBlogs = async (req, res, next) => {
+  try {
+    const page = Math.max(1, parseInt(req.query.page) || 1);
+    const limit = 9;
+    const { search, category, sort } = req.query;
+    const filter = { status: 'published' };
+    if (search) filter.title = { $regex: escapeRegex(search), $options: 'i' };
+    if (category) filter.category = category;
 
-  const total = await Blog.countDocuments(filter);
-  let blogs;
+    const total = await Blog.countDocuments(filter);
+    let blogs;
 
-  if (sort === 'liked') {
-    blogs = await Blog.aggregate([
-      { $match: filter },
-      { $addFields: { likesCount: { $size: { $ifNull: ['$likes', []] } } } },
-      { $sort: { likesCount: -1, createdAt: -1 } },
-      { $skip: (page - 1) * limit },
-      { $limit: limit }
-    ]);
-    await Blog.populate(blogs, { path: 'author', select: 'username profilePic' });
-  } else {
-    const sortObj = sort === 'viewed' ? { views: -1 } : { createdAt: -1 };
-    blogs = await Blog.find(filter)
-      .populate('author', 'username profilePic')
-      .sort(sortObj)
-      .skip((page - 1) * limit)
-      .limit(limit);
+    if (sort === 'liked') {
+      blogs = await Blog.aggregate([
+        { $match: filter },
+        { $addFields: { likesCount: { $size: { $ifNull: ['$likes', []] } } } },
+        { $sort: { likesCount: -1, createdAt: -1 } },
+        { $skip: (page - 1) * limit },
+        { $limit: limit }
+      ]);
+      await Blog.populate(blogs, { path: 'author', select: 'username profilePic' });
+    } else {
+      const sortObj = sort === 'viewed' ? { views: -1 } : { createdAt: -1 };
+      blogs = await Blog.find(filter)
+        .populate('author', 'username profilePic')
+        .sort(sortObj)
+        .skip((page - 1) * limit)
+        .limit(limit);
+    }
+    res.render('blogs/list', {
+      title: 'Explore blogs',
+      blogs,
+      categories: CATEGORIES,
+      current: { search: search || '', category: category || '', sort: sort || 'latest' },
+      page,
+      totalPages: Math.ceil(total / limit)
+    });
+  } catch (err) {
+    next(err);
   }
-  res.render('blogs/list', {
-    title: 'Explore blogs',
-    blogs,
-    categories: CATEGORIES,
-    current: { search: search || '', category: category || '', sort: sort || 'latest' },
-    page,
-    totalPages: Math.ceil(total / limit)
-  });
 };
 
-exports.showBlog = async (req, res) => {
-  let blog = await Blog.findOne({ slug: req.params.slug }).populate(
-    'author',
-    'username profilePic bio'
-  );
-  if (!blog) {
-    req.flash('error', 'Blog not found');
-    return res.redirect('/blogs');
+exports.showBlog = async (req, res, next) => {
+  try {
+    let blog = await Blog.findOne({ slug: req.params.slug }).populate(
+      'author',
+      'username profilePic bio'
+    );
+    if (!blog) {
+      req.flash('error', 'Blog not found');
+      return res.redirect('/blogs');
+    }
+    if (blog.status === 'draft' && (!req.user || String(blog.author._id) !== String(req.user._id))) {
+      req.flash('error', 'This blog is not available');
+      return res.redirect('/blogs');
+    }
+    const isAuthor = req.user && String(blog.author._id) === String(req.user._id);
+    if (blog.status === 'published' && !isAuthor) {
+      blog = await Blog.findByIdAndUpdate(
+        blog._id,
+        { $inc: { views: 1 } },
+        { new: true }
+      ).populate('author', 'username profilePic bio');
+    }
+    const comments = await Comment.find({ blog: blog._id })
+      .sort({ createdAt: -1 })
+      .populate('user', 'username profilePic');
+    let bookmarked = false;
+    if (req.user) {
+      bookmarked = !!(await Bookmark.findOne({ user: req.user._id, blog: blog._id }));
+    }
+    const related = await Blog.find({
+      category: blog.category,
+      status: 'published',
+      _id: { $ne: blog._id }
+    })
+      .limit(3)
+      .populate('author', 'username');
+    res.render('blogs/show', { title: blog.title, blog, comments, bookmarked, related });
+  } catch (err) {
+    next(err);
   }
-  if (blog.status === 'draft' && (!req.user || String(blog.author._id) !== String(req.user._id))) {
-    req.flash('error', 'This blog is not available');
-    return res.redirect('/blogs');
-  }
-  const isAuthor = req.user && String(blog.author._id) === String(req.user._id);
-  if (blog.status === 'published' && !isAuthor) {
-    blog = await Blog.findByIdAndUpdate(
-      blog._id,
-      { $inc: { views: 1 } },
-      { new: true }
-    ).populate('author', 'username profilePic bio');
-  }
-  const comments = await Comment.find({ blog: blog._id })
-    .sort({ createdAt: -1 })
-    .populate('user', 'username profilePic');
-  let bookmarked = false;
-  if (req.user) {
-    bookmarked = !!(await Bookmark.findOne({ user: req.user._id, blog: blog._id }));
-  }
-  const related = await Blog.find({
-    category: blog.category,
-    status: 'published',
-    _id: { $ne: blog._id }
-  })
-    .limit(3)
-    .populate('author', 'username');
-  res.render('blogs/show', { title: blog.title, blog, comments, bookmarked, related });
 };
 
 exports.getCreate = (req, res) =>
@@ -121,17 +138,21 @@ exports.postCreate = async (req, res) => {
   }
 };
 
-exports.getEdit = async (req, res) => {
-  const blog = await Blog.findById(req.params.id);
-  if (!blog) {
-    req.flash('error', 'Blog not found');
-    return res.redirect('/dashboard');
+exports.getEdit = async (req, res, next) => {
+  try {
+    const blog = await Blog.findById(req.params.id);
+    if (!blog) {
+      req.flash('error', 'Blog not found');
+      return res.redirect('/dashboard');
+    }
+    if (String(blog.author) !== String(req.user._id) && req.user.role !== 'admin') {
+      req.flash('error', 'Not authorized');
+      return res.redirect('/dashboard');
+    }
+    res.render('blogs/edit', { title: 'Edit story', blog, categories: CATEGORIES });
+  } catch (err) {
+    next(err);
   }
-  if (String(blog.author) !== String(req.user._id) && req.user.role !== 'admin') {
-    req.flash('error', 'Not authorized');
-    return res.redirect('/dashboard');
-  }
-  res.render('blogs/edit', { title: 'Edit story', blog, categories: CATEGORIES });
 };
 
 exports.postEdit = async (req, res) => {
@@ -163,81 +184,113 @@ exports.postEdit = async (req, res) => {
   }
 };
 
-exports.deleteBlog = async (req, res) => {
-  const blog = await Blog.findById(req.params.id);
-  if (!blog) {
-    req.flash('error', 'Blog not found');
-    return res.redirect('/dashboard');
+exports.deleteBlog = async (req, res, next) => {
+  try {
+    const blog = await Blog.findById(req.params.id);
+    if (!blog) {
+      req.flash('error', 'Blog not found');
+      return res.redirect('/dashboard');
+    }
+    if (String(blog.author) !== String(req.user._id) && req.user.role !== 'admin') {
+      req.flash('error', 'Not authorized');
+      return res.redirect('/dashboard');
+    }
+    await Comment.deleteMany({ blog: blog._id });
+    await Bookmark.deleteMany({ blog: blog._id });
+    await blog.deleteOne();
+    req.flash('success', 'Blog deleted');
+    res.redirect('/dashboard');
+  } catch (err) {
+    next(err);
   }
-  if (String(blog.author) !== String(req.user._id) && req.user.role !== 'admin') {
-    req.flash('error', 'Not authorized');
-    return res.redirect('/dashboard');
+};
+
+exports.getViews = async (req, res, next) => {
+  try {
+    const blog = await Blog.findById(req.params.id).select('views');
+    if (!blog) return res.status(404).json({ error: 'Not found' });
+    res.json({ views: blog.views });
+  } catch (err) {
+    next(err);
   }
-  await Comment.deleteMany({ blog: blog._id });
-  await Bookmark.deleteMany({ blog: blog._id });
-  await blog.deleteOne();
-  req.flash('success', 'Blog deleted');
-  res.redirect('/dashboard');
 };
 
-exports.getViews = async (req, res) => {
-  const blog = await Blog.findById(req.params.id).select('views');
-  if (!blog) return res.status(404).json({ error: 'Not found' });
-  res.json({ views: blog.views });
-};
-
-exports.toggleLike = async (req, res) => {
-  const blog = await Blog.findById(req.params.id);
-  if (!blog) return res.status(404).json({ error: 'Not found' });
-  const idx = blog.likes.findIndex((u) => String(u) === String(req.user._id));
-  if (idx === -1) blog.likes.push(req.user._id);
-  else blog.likes.splice(idx, 1);
-  await blog.save();
-  res.json({ liked: idx === -1, count: blog.likes.length });
-};
-
-exports.toggleBookmark = async (req, res) => {
-  const existing = await Bookmark.findOne({ user: req.user._id, blog: req.params.id });
-  if (existing) {
-    await existing.deleteOne();
-    return res.json({ bookmarked: false });
+exports.toggleLike = async (req, res, next) => {
+  try {
+    const blog = await Blog.findById(req.params.id);
+    if (!blog) return res.status(404).json({ error: 'Not found' });
+    const idx = blog.likes.findIndex((u) => String(u) === String(req.user._id));
+    if (idx === -1) blog.likes.push(req.user._id);
+    else blog.likes.splice(idx, 1);
+    await blog.save();
+    res.json({ liked: idx === -1, count: blog.likes.length });
+  } catch (err) {
+    next(err);
   }
-  await Bookmark.create({ user: req.user._id, blog: req.params.id });
-  res.json({ bookmarked: true });
 };
 
-exports.bookmarks = async (req, res) => {
-  const items = await Bookmark.find({ user: req.user._id })
-    .sort({ createdAt: -1 })
-    .populate({ path: 'blog', populate: { path: 'author', select: 'username profilePic' } });
-  const blogs = items.map((i) => i.blog).filter(Boolean);
-  res.render('blogs/bookmarks', { title: 'Your bookmarks', blogs });
-};
-
-exports.dashboard = async (req, res) => {
-  const blogs = await Blog.find({ author: req.user._id }).sort({ updatedAt: -1 });
-  const published = blogs.filter((b) => b.status === 'published');
-  const drafts = blogs.filter((b) => b.status === 'draft');
-  const totalViews = published.reduce((s, b) => s + b.views, 0);
-  const totalLikes = published.reduce((s, b) => s + b.likes.length, 0);
-  res.render('dashboard/dashboard', {
-    title: 'Your dashboard',
-    published,
-    drafts,
-    stats: { totalViews, totalLikes, count: blogs.length }
-  });
-};
-
-exports.profile = async (req, res) => {
-  if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
-    req.flash('error', 'User not found');
-    return res.redirect('/');
+exports.toggleBookmark = async (req, res, next) => {
+  try {
+    const existing = await Bookmark.findOne({ user: req.user._id, blog: req.params.id });
+    if (existing) {
+      await existing.deleteOne();
+      return res.json({ bookmarked: false });
+    }
+    await Bookmark.create({ user: req.user._id, blog: req.params.id });
+    res.json({ bookmarked: true });
+  } catch (err) {
+    next(err);
   }
-  const user = await User.findById(req.params.id);
-  if (!user) {
-    req.flash('error', 'User not found');
-    return res.redirect('/');
+};
+
+exports.bookmarks = async (req, res, next) => {
+  try {
+    const items = await Bookmark.find({ user: req.user._id })
+      .sort({ createdAt: -1 })
+      .populate({ path: 'blog', populate: { path: 'author', select: 'username profilePic' } });
+    const blogs = items.map((i) => i.blog).filter(Boolean);
+    res.render('blogs/bookmarks', { title: 'Your bookmarks', blogs });
+  } catch (err) {
+    next(err);
   }
-  const blogs = await Blog.find({ author: user._id, status: 'published' }).sort({ createdAt: -1 });
-  res.render('blogs/profile', { title: user.username, profileUser: user, blogs });
+};
+
+exports.dashboard = async (req, res, next) => {
+  try {
+    const blogs = await Blog.find({ author: req.user._id }).sort({ updatedAt: -1 });
+    const published = blogs.filter((b) => b.status === 'published');
+    const drafts = blogs.filter((b) => b.status === 'draft');
+    const totalViews = published.reduce((s, b) => s + b.views, 0);
+    const totalLikes = published.reduce((s, b) => s + b.likes.length, 0);
+    res.render('dashboard/dashboard', {
+      title: 'Your dashboard',
+      published,
+      drafts,
+      stats: { totalViews, totalLikes, count: blogs.length }
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
+exports.profile = async (req, res, next) => {
+  try {
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+      req.flash('error', 'User not found');
+      return res.redirect('/');
+    }
+    const user = await User.findById(req.params.id);
+    if (!user) {
+      req.flash('error', 'User not found');
+      return res.redirect('/');
+    }
+    const blogs = await Blog.find({ author: user._id, status: 'published' })
+      .sort({ createdAt: -1 })
+      .lean();
+    // Attach author info to each blog for the blog-card partial
+    blogs.forEach((blog) => { blog.author = user; });
+    res.render('blogs/profile', { title: user.username, profileUser: user, blogs });
+  } catch (err) {
+    next(err);
+  }
 };
