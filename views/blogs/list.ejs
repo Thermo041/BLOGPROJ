@@ -1,0 +1,43 @@
+<section class="max-w-6xl mx-auto px-5 py-12">
+  <div class="mb-8">
+    <h1 class="font-serif text-4xl font-semibold">Explore stories</h1>
+    <p class="opacity-60 mt-2">Browse by category, search a topic, or sort by what is popular.</p>
+  </div>
+
+  <form action="/blogs" method="GET" class="flex flex-col md:flex-row gap-3 mb-8">
+    <label class="input input-bordered flex items-center gap-2 flex-1">
+      <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 opacity-50" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="m21 21-4.3-4.3M11 19a8 8 0 1 0 0-16 8 8 0 0 0 0 16Z"/></svg>
+      <input type="text" name="search" value="<%= current.search %>" placeholder="Search stories" class="grow" />
+    </label>
+    <select name="category" class="select select-bordered">
+      <option value="">All categories</option>
+      <% categories.forEach(function(c){ %>
+        <option value="<%= c %>" <%= current.category === c ? 'selected' : '' %>><%= c %></option>
+      <% }); %>
+    </select>
+    <select name="sort" class="select select-bordered">
+      <option value="latest" <%= current.sort === 'latest' ? 'selected' : '' %>>Latest</option>
+      <option value="liked" <%= current.sort === 'liked' ? 'selected' : '' %>>Most liked</option>
+      <option value="viewed" <%= current.sort === 'viewed' ? 'selected' : '' %>>Most viewed</option>
+    </select>
+    <button class="btn btn-primary">Apply</button>
+  </form>
+
+  <% if (blogs.length) { %>
+    <div class="grid gap-6 md:grid-cols-3">
+      <% blogs.forEach(function(blog){ %><%- include('../partials/blog-card', { blog }) %><% }); %>
+    </div>
+    <% if (totalPages > 1) { %>
+      <div class="join flex justify-center mt-12">
+        <% for (var i = 1; i <= totalPages; i++) { %>
+          <a class="join-item btn btn-sm <%= i === page ? 'btn-primary' : 'btn-ghost bg-base-200/50' %>" href="/blogs?page=<%= i %>&search=<%= encodeURIComponent(current.search) %>&category=<%= encodeURIComponent(current.category) %>&sort=<%= current.sort %>"><%= i %></a>
+        <% } %>
+      </div>
+    <% } %>
+  <% } else { %>
+    <div class="text-center py-20 opacity-60">
+      <p class="font-serif text-2xl">Nothing found</p>
+      <p class="text-sm mt-1">Try a different search or category.</p>
+    </div>
+  <% } %>
+</section>
