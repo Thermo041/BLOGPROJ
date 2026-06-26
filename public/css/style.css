@@ -1,0 +1,36 @@
+:root { scroll-behavior: smooth; }
+
+body { letter-spacing: -0.011em; }
+
+.flash-alert {
+  animation: flashIn 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+@keyframes flashIn {
+  from { opacity: 0; transform: translateY(-8px) scale(0.98); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+.flash-alert.hide {
+  opacity: 0;
+  transform: translateX(20px);
+  transition: all 0.4s ease;
+}
+
+.prose-content {
+  font-family: 'Fraunces', Georgia, serif;
+  font-size: 1.18rem;
+  line-height: 1.85;
+}
+.prose-content p { margin-bottom: 1.6rem; }
+
+.hero-grain {
+  background-image: radial-gradient(circle at 1px 1px, currentColor 1px, transparent 0);
+  background-size: 22px 22px;
+  opacity: 0.05;
+}
+
+.like-btn.active svg { fill: currentColor; }
+
+.line-clamp-2 { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.line-clamp-3 { display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+
+a, button, .btn, img, .badge { transition-property: color, background-color, border-color, transform, box-shadow, opacity; }

@@ -1,0 +1,45 @@
+<header class="sticky top-0 z-40 border-b border-base-300/70 bg-base-100/85 backdrop-blur-md">
+  <nav class="max-w-6xl mx-auto px-5 h-16 flex items-center justify-between gap-4">
+    <a href="/" class="flex items-center gap-2 group">
+      <span class="w-8 h-8 rounded-lg bg-primary text-primary-content grid place-items-center font-serif font-bold text-lg leading-none">B</span>
+      <span class="font-serif text-xl font-semibold tracking-tight">BlogSphere</span>
+    </a>
+
+    <form action="/blogs" method="GET" class="hidden md:flex flex-1 max-w-sm">
+      <label class="input input-sm input-bordered flex items-center gap-2 w-full rounded-full bg-base-200/60">
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 opacity-50" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="m21 21-4.3-4.3M11 19a8 8 0 1 0 0-16 8 8 0 0 0 0 16Z"/></svg>
+        <input type="text" name="search" placeholder="Search stories" class="grow bg-transparent text-sm" />
+      </label>
+    </form>
+
+    <div class="flex items-center gap-1.5">
+      <a href="/blogs" class="btn btn-ghost btn-sm hidden sm:inline-flex">Explore</a>
+      <% if (currentUser) { %>
+        <a href="/blogs/create" class="btn btn-primary btn-sm rounded-full px-4">Write</a>
+        <div class="dropdown dropdown-end">
+          <div tabindex="0" role="button" class="btn btn-ghost btn-circle avatar">
+            <div class="w-9 rounded-full ring ring-base-300 ring-offset-base-100 ring-offset-1">
+              <img src="<%= currentUser.profilePic %>" alt="avatar" />
+            </div>
+          </div>
+          <ul tabindex="0" class="menu dropdown-content mt-3 z-50 p-2 shadow-lg bg-base-100 rounded-box w-56 border border-base-300">
+            <li class="menu-title px-3 py-1"><span class="truncate">@<%= currentUser.username %></span></li>
+            <li><a href="/dashboard">Dashboard</a></li>
+            <li><a href="/bookmarks">Bookmarks</a></li>
+            <li><a href="/profile/<%= currentUser._id %>">My profile</a></li>
+            <li><a href="/settings">Settings</a></li>
+            <% if (currentUser.role === 'admin') { %>
+              <li><a href="/admin/dashboard" class="text-primary">Admin panel</a></li>
+            <% } %>
+            <div class="divider my-1"></div>
+            <li><a href="/logout" class="text-error">Sign out</a></li>
+          </ul>
+        </div>
+      <% } else { %>
+        <a href="/login" class="btn btn-ghost btn-sm">Sign in</a>
+        <a href="/register" class="btn btn-primary btn-sm rounded-full px-4">Get started</a>
+      <% } %>
+      <input type="checkbox" value="paper" class="toggle toggle-sm theme-toggle ml-1" title="Toggle theme" />
+    </div>
+  </nav>
+</header>
