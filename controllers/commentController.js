@@ -24,17 +24,24 @@ exports.addComment = async (req, res) => {
 };
 
 exports.deleteComment = async (req, res) => {
-  const comment = await Comment.findById(req.params.id).populate('blog', 'slug');
-  if (!comment) {
-    req.flash('error', 'Comment not found');
-    return res.redirect('back');
+  try {
+    const fallback = req.get('Referer') || '/blogs';
+    const comment = await Comment.findById(req.params.id).populate('blog', 'slug');
+    if (!comment) {
+      req.flash('error', 'Comment not found');
+      return res.redirect(fallback);
+    }
+    if (String(comment.user) !== String(req.user._id) && req.user.role !== 'admin') {
+      req.flash('error', 'Not authorized');
+      return res.redirect(fallback);
+    }
+    const slug = comment.blog ? comment.blog.slug : null;
+    await comment.deleteOne();
+    req.flash('success', 'Comment removed');
+    res.redirect(slug ? `/blogs/${slug}#comments` : '/blogs');
+  } catch (err) {
+    console.error(err);
+    req.flash('error', 'Could not delete comment');
+    res.redirect('/blogs');
   }
-  if (String(comment.user) !== String(req.user._id) && req.user.role !== 'admin') {
-    req.flash('error', 'Not authorized');
-    return res.redirect('back');
-  }
-  const slug = comment.blog.slug;
-  await comment.deleteOne();
-  req.flash('success', 'Comment removed');
-  res.redirect(`/blogs/${slug}#comments`);
 };

@@ -20,6 +20,10 @@ exports.updateProfile = async (req, res) => {
     req.flash('success', 'Profile updated');
     res.redirect('/settings');
   } catch (err) {
+    if (err && err.code === 11000) {
+      req.flash('error', 'That username is already taken. Please choose another.');
+      return res.redirect('/settings');
+    }
     console.error(err);
     req.flash('error', 'Could not update profile');
     res.redirect('/settings');
