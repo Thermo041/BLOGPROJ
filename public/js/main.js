@@ -72,4 +72,21 @@
       } catch (e) {}
     }, 10000);
   }
+
+  // Instant frontend password validation
+  document.querySelectorAll('form').forEach(function (form) {
+    var pass = form.querySelector('input[name="password"]');
+    var conf = form.querySelector('input[name="confirm"]');
+    if (pass && conf) {
+      function checkMatch() {
+        if (pass.value !== conf.value) {
+          conf.setCustomValidity('Passwords do not match');
+        } else {
+          conf.setCustomValidity('');
+        }
+      }
+      pass.addEventListener('input', checkMatch);
+      conf.addEventListener('input', checkMatch);
+    }
+  });
 })();
