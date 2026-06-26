@@ -5,7 +5,7 @@
       <h1 class="font-serif text-3xl font-semibold"><%= profileUser.username %></h1>
       <% if (profileUser.role === 'admin') { %><span class="badge badge-primary badge-sm mt-1">Admin</span><% } %>
       <p class="opacity-70 mt-2 max-w-lg"><%= profileUser.bio || 'This writer has not added a bio yet.' %></p>
-      <p class="text-sm opacity-50 mt-3"><%= blogs.length %> published <%= blogs.length === 1 ? 'story' : 'stories' %> · Joined <%= new Date(profileUser.createdAt).toLocaleDateString('en-US', { month: 'short', year: 'numeric' }) %></p>
+      <p class="text-sm opacity-50 mt-3"><%= blogs.length %> published <%= blogs.length === 1 ? 'story' : 'stories' %> · Joined <%= new Date(profileUser.createdAt || profileUser._id.getTimestamp()).toLocaleDateString('en-US', { month: 'short', year: 'numeric' }) %></p>
     </div>
     <% if (currentUser && String(currentUser._id) === String(profileUser._id)) { %>
       <a href="/settings" class="btn btn-outline btn-sm">Edit profile</a>
