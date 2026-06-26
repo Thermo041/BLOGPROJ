@@ -1,0 +1,38 @@
+<section class="max-w-3xl mx-auto px-5 py-12">
+  <h1 class="font-serif text-3xl font-semibold mb-8">Edit story</h1>
+  <form action="/blogs/edit/<%= blog._id %>?_method=PUT" method="POST" enctype="multipart/form-data" class="space-y-5">
+    <div class="form-control">
+      <label class="label"><span class="label-text font-medium">Title</span></label>
+      <input type="text" name="title" required value="<%= blog.title %>" class="input input-bordered input-lg font-serif" />
+    </div>
+    <div class="form-control">
+      <label class="label"><span class="label-text font-medium">Short description</span></label>
+      <textarea name="description" rows="2" required class="textarea textarea-bordered"><%= blog.description %></textarea>
+    </div>
+    <div class="grid sm:grid-cols-2 gap-4">
+      <div class="form-control">
+        <label class="label"><span class="label-text font-medium">Category</span></label>
+        <select name="category" required class="select select-bordered">
+          <% categories.forEach(function(c){ %><option value="<%= c %>" <%= blog.category === c ? 'selected' : '' %>><%= c %></option><% }); %>
+        </select>
+      </div>
+      <div class="form-control">
+        <label class="label"><span class="label-text font-medium">Tags</span></label>
+        <input type="text" name="tags" value="<%= blog.tags.join(', ') %>" class="input input-bordered" />
+      </div>
+    </div>
+    <div class="form-control">
+      <label class="label"><span class="label-text font-medium">Replace cover image</span></label>
+      <input type="file" name="coverImage" accept="image/*" class="file-input file-input-bordered" />
+      <img src="<%= blog.coverImage %>" class="mt-3 rounded-xl aspect-[16/9] object-cover" alt="current cover" />
+    </div>
+    <div class="form-control">
+      <label class="label"><span class="label-text font-medium">Content</span></label>
+      <textarea name="content" rows="14" required class="textarea textarea-bordered prose-content leading-relaxed"><%= blog.content %></textarea>
+    </div>
+    <div class="flex gap-3 justify-end pt-2">
+      <button type="submit" name="status" value="draft" class="btn btn-ghost">Save as draft</button>
+      <button type="submit" name="status" value="published" class="btn btn-primary px-6">Publish</button>
+    </div>
+  </form>
+</section>

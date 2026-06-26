@@ -1,0 +1,37 @@
+<section class="max-w-3xl mx-auto px-5 py-12">
+  <h1 class="font-serif text-3xl font-semibold mb-8">Write a story</h1>
+  <form action="/blogs/create" method="POST" enctype="multipart/form-data" class="space-y-5">
+    <div class="form-control">
+      <label class="label"><span class="label-text font-medium">Title</span></label>
+      <input type="text" name="title" required placeholder="An attention-grabbing title" class="input input-bordered input-lg font-serif" />
+    </div>
+    <div class="form-control">
+      <label class="label"><span class="label-text font-medium">Short description</span></label>
+      <textarea name="description" rows="2" required placeholder="One or two lines that hook the reader" class="textarea textarea-bordered"></textarea>
+    </div>
+    <div class="grid sm:grid-cols-2 gap-4">
+      <div class="form-control">
+        <label class="label"><span class="label-text font-medium">Category</span></label>
+        <select name="category" required class="select select-bordered">
+          <% categories.forEach(function(c){ %><option value="<%= c %>"><%= c %></option><% }); %>
+        </select>
+      </div>
+      <div class="form-control">
+        <label class="label"><span class="label-text font-medium">Tags <span class="opacity-50 font-normal">(comma separated)</span></span></label>
+        <input type="text" name="tags" placeholder="node, mongodb, tips" class="input input-bordered" />
+      </div>
+    </div>
+    <div class="form-control">
+      <label class="label"><span class="label-text font-medium">Cover image</span></label>
+      <input type="file" name="coverImage" accept="image/*" class="file-input file-input-bordered" />
+    </div>
+    <div class="form-control">
+      <label class="label"><span class="label-text font-medium">Content</span></label>
+      <textarea name="content" rows="14" required placeholder="Write your heart out… separate paragraphs with a blank line." class="textarea textarea-bordered prose-content leading-relaxed"></textarea>
+    </div>
+    <div class="flex gap-3 justify-end pt-2">
+      <button type="submit" name="status" value="draft" class="btn btn-ghost">Save draft</button>
+      <button type="submit" name="status" value="published" class="btn btn-primary px-6">Publish</button>
+    </div>
+  </form>
+</section>
