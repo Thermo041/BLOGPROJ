@@ -1,6 +1,9 @@
 (function () {
+  // Clear stale flash alerts restored from browser bfcache
   window.addEventListener('pageshow', function (event) {
-    if (event.persisted) window.location.reload();
+    if (event.persisted) {
+      document.querySelectorAll('.flash-alert').forEach(function (el) { el.remove(); });
+    }
   });
 
   document.querySelectorAll('.flash-alert').forEach(function (el) {
