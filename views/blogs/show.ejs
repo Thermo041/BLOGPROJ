@@ -8,7 +8,7 @@
 
   <div class="flex items-center justify-between flex-wrap gap-4 mt-7 pb-7 border-b border-base-300/70">
     <a href="/profile/<%= blog.author._id %>" class="flex items-center gap-3">
-      <img src="<%= blog.author.profilePic %>" class="w-11 h-11 rounded-full object-cover" alt="" />
+      <img src="<%= blog.author.avatar %>" class="w-11 h-11 rounded-full object-cover bg-base-200" alt="" />
       <div>
         <p class="font-semibold leading-tight"><%= blog.author.username %></p>
         <p class="text-xs opacity-55"><%= new Date(blog.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) %> · <%= blog.readingTime %> min read</p>
@@ -67,7 +67,7 @@
       <% if (!comments.length) { %><p class="opacity-55 text-sm">No comments yet. Be the first.</p><% } %>
       <% comments.forEach(function(c){ %>
         <div class="flex gap-3">
-          <img src="<%= c.user.profilePic %>" class="w-9 h-9 rounded-full object-cover shrink-0" alt="" />
+          <img src="<%= c.user.avatar %>" class="w-9 h-9 rounded-full object-cover shrink-0 bg-base-200" alt="" />
           <div class="flex-1 bg-base-200/50 rounded-2xl rounded-tl-sm px-4 py-3">
             <div class="flex items-center justify-between gap-2">
               <span class="font-semibold text-sm"><%= c.user.username %></span>

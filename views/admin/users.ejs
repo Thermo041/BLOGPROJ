@@ -6,7 +6,7 @@
       <tbody>
         <% users.forEach(function(u){ %>
           <tr class="hover">
-            <td class="flex items-center gap-2"><img src="<%= u.profilePic %>" class="w-8 h-8 rounded-full object-cover" alt="" /><a href="/profile/<%= u._id %>" class="font-medium hover:text-primary"><%= u.username %></a></td>
+            <td class="flex items-center gap-2"><img src="<%= u.avatar %>" class="w-8 h-8 rounded-full object-cover bg-base-200" alt="" /><a href="/profile/<%= u._id %>" class="font-medium hover:text-primary"><%= u.username %></a></td>
             <td class="text-sm opacity-70"><%= u.email %></td>
             <td><span class="badge badge-sm <%= u.role === 'admin' ? 'badge-primary' : 'badge-ghost' %>"><%= u.role %></span></td>
             <td><% if (u.isBanned) { %><span class="badge badge-error badge-sm">Banned</span><% } else { %><span class="badge badge-success badge-sm">Active</span><% } %></td>

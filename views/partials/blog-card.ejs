@@ -14,7 +14,7 @@
     <div class="mt-auto flex items-center justify-between">
       <% if (blog.author) { %>
       <a href="/profile/<%= blog.author._id %>" class="flex items-center gap-2 group/author">
-        <img src="<%= blog.author.profilePic %>" class="w-7 h-7 rounded-full object-cover" alt="" />
+        <img src="<%= blog.author.avatar %>" class="w-7 h-7 rounded-full object-cover bg-base-200" alt="" />
         <span class="text-sm font-medium group-hover/author:text-primary transition"><%= blog.author.username %></span>
       </a>
       <% } else { %><span></span><% } %>

@@ -5,7 +5,7 @@
     <form action="/settings/profile" method="POST" enctype="multipart/form-data" class="card-body gap-4">
       <h2 class="font-serif text-xl font-semibold">Profile</h2>
       <div class="flex items-center gap-4">
-        <img src="<%= currentUser.profilePic %>" class="w-16 h-16 rounded-full object-cover" alt="" />
+        <img src="<%= currentUser.avatar %>" class="w-16 h-16 rounded-full object-cover bg-base-200" alt="" />
         <input type="file" name="profilePic" accept="image/*" class="file-input file-input-bordered file-input-sm flex-1" />
       </div>
       <div class="form-control">

@@ -1,6 +1,6 @@
 <section class="max-w-4xl mx-auto px-5 py-12">
   <div class="flex flex-col sm:flex-row items-center sm:items-start gap-6 pb-8 border-b border-base-300/70">
-    <img src="<%= profileUser.profilePic %>" class="w-24 h-24 rounded-full object-cover ring ring-base-300 ring-offset-base-100 ring-offset-2" alt="" />
+    <img src="<%= profileUser.avatar %>" class="w-24 h-24 rounded-full object-cover ring ring-base-300 ring-offset-base-100 ring-offset-2 bg-base-200" alt="" />
     <div class="text-center sm:text-left flex-1">
       <h1 class="font-serif text-3xl font-semibold"><%= profileUser.username %></h1>
       <% if (profileUser.role === 'admin') { %><span class="badge badge-primary badge-sm mt-1">Admin</span><% } %>
