@@ -54,11 +54,10 @@ exports.listBlogs = async (req, res) => {
 };
 
 exports.showBlog = async (req, res) => {
-  const blog = await Blog.findOneAndUpdate(
-    { slug: req.params.slug },
-    { $inc: { views: 1 } },
-    { new: true }
-  ).populate('author', 'username profilePic bio');
+  let blog = await Blog.findOne({ slug: req.params.slug }).populate(
+    'author',
+    'username profilePic bio'
+  );
   if (!blog) {
     req.flash('error', 'Blog not found');
     return res.redirect('/blogs');
@@ -66,6 +65,14 @@ exports.showBlog = async (req, res) => {
   if (blog.status === 'draft' && (!req.user || String(blog.author._id) !== String(req.user._id))) {
     req.flash('error', 'This blog is not available');
     return res.redirect('/blogs');
+  }
+  const isAuthor = req.user && String(blog.author._id) === String(req.user._id);
+  if (blog.status === 'published' && !isAuthor) {
+    blog = await Blog.findByIdAndUpdate(
+      blog._id,
+      { $inc: { views: 1 } },
+      { new: true }
+    ).populate('author', 'username profilePic bio');
   }
   const comments = await Comment.find({ blog: blog._id })
     .sort({ createdAt: -1 })

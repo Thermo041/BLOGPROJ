@@ -29,6 +29,12 @@ exports.postRegister = async (req, res) => {
     req.flash('success', 'Account created. Welcome aboard, sign in to begin.');
     res.redirect('/login');
   } catch (err) {
+    if (err && err.code === 11000) {
+      const field = Object.keys(err.keyPattern || {})[0];
+      const label = field === 'email' ? 'email' : 'username';
+      req.flash('error', `That ${label} is already taken. Please choose another.`);
+      return res.redirect('/register');
+    }
     console.error(err);
     req.flash('error', 'Something went wrong creating your account');
     res.redirect('/register');
