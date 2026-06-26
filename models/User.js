@@ -24,8 +24,10 @@ const AVATAR_COLORS = [
   ['#a855f7', '#d946ef']
 ];
 
+const LEGACY_DEFAULT = 'https://res.cloudinary.com/dywermdgr/image/upload/v1/blogsphere/default-avatar';
+
 userSchema.virtual('avatar').get(function () {
-  if (this.profilePic) return this.profilePic;
+  if (this.profilePic && this.profilePic !== LEGACY_DEFAULT) return this.profilePic;
   const name = (this.username || 'User').trim();
   const parts = name.split(/\s+/);
   const initials = (parts.length > 1
